@@ -2,6 +2,7 @@
 
 # 環境変数の設定
 export ALSADEV="plughw:1,0"
+export JULIUSHOME="/home/pi/julius"
 
 usage() {
 	echo $" $ ./start-julius.sh <辞書ファイル名> <動作モード>"

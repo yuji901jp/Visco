@@ -1,11 +1,11 @@
 #使用するHMM定義ファイル
--h /home/pi/julius/grammar-kit/model/phone_m/hmmdefs_ptm_gid.binhmm   # PTM triphone
+-h ${JULIUSHOME}/grammar-kit/model/phone_m/hmmdefs_ptm_gid.binhmm   # PTM triphone
 
 #HMMlistファイルを指定する
--hlist /home/pi/julius/grammar-kit/model/phone_m/logicalTri
+-hlist ${JULIUSHOME}/grammar-kit/model/phone_m/logicalTri
 
 # 使用する文法ファイル名を指定
--gram /home/pi/Visco/dict/test
+-gram ../dict/test
 
 #マイク使用
 -input mic
