@@ -2,6 +2,7 @@
 import time
 import socket
 import re
+import os
 import xml.etree.ElementTree as ET
 
 def extract_words(response):
@@ -21,17 +22,17 @@ def extract_words(response):
         words = []
         for whypo in recogout[0]:
             attrib = whypo.attrib
-            print("              WORD=", attrib['WORD'],\
-                                 " CM=", attrib['CM'],\
-                            " CLASSID=", attrib['CLASSID'],
-                              " PHONE=", attrib['PHONE'])
+            print("[RAW]------ WORD=", attrib['WORD'],\
+                               " CM=", attrib['CM'],\
+                          " CLASSID=", attrib['CLASSID'],
+                            " PHONE=", attrib['PHONE'])
 
             if attrib['WORD'] not in ('[s]', '[/s]'):
-                if float(attrib['CM']) > 0.2:
-                    print("[FILTERED]--  WORD=", attrib['WORD'],\
-                                         " CM=", attrib['CM'],\
-                                    " CLASSID=", attrib['CLASSID'],\
-                                      " PHONE=", attrib['PHONE'])
+                if float(attrib['CM']) > 0.5:
+                    print("[HIT]------ WORD=", attrib['WORD'],\
+                                       " CM=", attrib['CM'],\
+                                  " CLASSID=", attrib['CLASSID'],\
+                                    " PHONE=", attrib['PHONE'])
                     words.append(attrib['WORD'])
 
         return ''.join(words)
@@ -49,9 +50,42 @@ def julius_speech_to_text(callback=None):
         if text is None:
             continue
 
-        print("PRINT OUT FROM julius_speech_to_text section : ", text)
+        print("[KEYWORD]-- Picked up keyword is : ", text)
+
+        if 'Ping' in text:
+            ping()
+
         if callback is not None:
             callback(text)
+
+def exec_cmd(cmd):
+    from subprocess import Popen, PIPE
+
+    p = Popen(cmd.split(' '), stdout=PIPE, stderr=PIPE)
+    out, err = p.communicate()
+
+    out = out.decode()
+    output = out.split('\n')
+
+    return output
+
+def ping():
+    target   = '192.168.1.1'
+    count    = '5'
+    interval = '0.2'
+    cmd = 'ping '+target+' -c '+count+' -i '+interval
+
+    print("[RUNNING]-- Ping試験を実行します。("+cmd+")")
+    for line in exec_cmd(cmd):
+        if "packet loss" in line:
+            val = line.split(' ')
+            loss = val[5].strip().replace('%','')
+            if loss == '0':
+                print("[SUCESS]--- "+target+"までロス無くPingが実行されました")
+            else:
+                print("[FAILED]--- "+target+"まで"+loss+"%のPingロスがありました")
+
+    return
 
 if __name__ == '__main__':
     try:
