@@ -2,8 +2,8 @@
 import time
 import socket
 import re
-import os
 import xml.etree.ElementTree as ET
+from actions import exec_cmd
 
 def extract_words(response):
         # 正規表現で切り出し
@@ -50,42 +50,17 @@ def julius_speech_to_text(callback=None):
         if text is None:
             continue
 
-        print("[KEYWORD]-- Picked up keyword is : ", text)
+        if len(text) is not 0:
+            exec_cmd.response(word=text, wav='sounds/response.wav')
+            print("[KEYWORD]-- Picked up keyword is : ", text)
 
         if 'Ping' in text:
-            ping()
+            exec_cmd.ping(target='8.8.8.8', read='on')
+        elif '時間' in text or '何時' in text:
+            exec_cmd.date(read='on')
 
         if callback is not None:
             callback(text)
-
-def exec_cmd(cmd):
-    from subprocess import Popen, PIPE
-
-    p = Popen(cmd.split(' '), stdout=PIPE, stderr=PIPE)
-    out, err = p.communicate()
-
-    out = out.decode()
-    output = out.split('\n')
-
-    return output
-
-def ping():
-    target   = '192.168.1.1'
-    count    = '5'
-    interval = '0.2'
-    cmd = 'ping '+target+' -c '+count+' -i '+interval
-
-    print("[RUNNING]-- Ping試験を実行します。("+cmd+")")
-    for line in exec_cmd(cmd):
-        if "packet loss" in line:
-            val = line.split(' ')
-            loss = val[5].strip().replace('%','')
-            if loss == '0':
-                print("[SUCESS]--- "+target+"までロス無くPingが実行されました")
-            else:
-                print("[FAILED]--- "+target+"まで"+loss+"%のPingロスがありました")
-
-    return
 
 if __name__ == '__main__':
     try:

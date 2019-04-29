@@ -1,7 +1,13 @@
 % HELLO
 おはよう	o h a y o u
 こんにちわ	k o N n i ch i w a
+こんにちわ	k a N n i ch i w a
+こんにちわ	k o N n i ch i w a:
+こんにちわ	k o N n i ch i w a a
 こんばんわ	k o N b a N w a
+こんばんわ	k a N b a N w a
+こんばんわ	k o N b a N w a:
+こんばんわ	k o N b a N w a a
 % GOBI
 ございます	g o z a i m a s u
 % NAME
@@ -18,9 +24,31 @@
 周知	sh u ch i
 周知	s u: ch i
 周知	sh i u t i
+Ping	p i N g u
+Ping	p i: e N g u
+Ping	p e N g u
+時間	j i k a N
+時間	d i k a N
 % RUN
+打つ	u ts u
+打つ	u ts u:
+打つ	u t u
+打って	u q t e
 して	sh i t e
 お願い	o n e g a i
+教えて	o sh i e t e
+教えて	o s i e t e
+% TOKI
+今	i m a
+今	e m a
+今は	i m a h a
+今は	m i h a w a
+今は	i m a w a
+% ASK
+何時	n a N j i
+何時	n a: N j i
+何時	n u a N j i
+何時	n u: a N j i
 % NS_B
 [s]     silB
 % NS_E
