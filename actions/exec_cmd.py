@@ -5,9 +5,9 @@ from datetime import datetime
 from time import sleep 
 
 ###############################################################################
-#                          OSコマンド実行モジュール                           #
-#                                                                             #
-#  このモジュールではshellコマンドをホストOSレベルで実行する差異に使用される。#
+#                          OSコマンド実行モジュール
+#
+#  このモジュールではshellコマンドをホストOSレベルで実行する差異に使用される。
 ###############################################################################
 def oscmd(cmd):
     p = Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -19,10 +19,10 @@ def oscmd(cmd):
     return output
 
 ###############################################################################
-#                   タイムスタンプ生成モジュール                              #
-#                                                                             #
-#  このモジュールではタイムスタンプ用の時刻情報を収集する。                   #
-#　収集された時刻情報は主に各モジュールのログファイル名に使用される           #
+#                   タイムスタンプ生成モジュール
+#
+#  このモジュールではタイムスタンプ用の時刻情報を収集する。
+#　収集された時刻情報は主に各モジュールのログファイル名に使用される
 ###############################################################################
 def timestamp():
     d = datetime.now()
@@ -37,16 +37,16 @@ def timestamp():
     return stamp
 
 ###############################################################################
-#                       テキスト読上げモジュール                              #
-#                                                                             #
-#  このモジュールではテキストで与えられた文字列をOpen-JTalkによって音声読み   #
-#  上げする。使用するためには事前にOpen-JTalkが必要になる。                   #
-#   [Open JTalkについて]　http://open-jtalk.sourceforge.net/                  #
-#   <option>                                                                  #
-#     word         : 読み上げる文字列を受け渡し                               #
-#     log - on/off : 読み上げた音声ファイル(wav)を残すか否か                  #
-#   <log>                                                                     #
-#     logs/jtalk-YYYYMMDDHHMMSS.wav                                           #
+#                       テキスト読上げモジュール
+#
+#  このモジュールではテキストで与えられた文字列をOpen-JTalkによって音声読み
+#  上げする。使用するためには事前にOpen-JTalkが必要になる。
+#   [Open JTalkについて]　http://open-jtalk.sourceforge.net/
+#   <option> 
+#     word         : 読み上げる文字列を受け渡し
+#     log - on/off : 読み上げた音声ファイル(wav)を残すか否か
+#   <log>
+#     logs/jtalk-YYYYMMDDHHMMSS.wav
 ###############################################################################
 def jtalk(word, log='on'):
     # タイムスタンプの取得
@@ -77,21 +77,20 @@ def jtalk(word, log='on'):
         p = subprocess.Popen(cmd)
 
 ###############################################################################
-#                          反応通知モジュール                                 #
-#                                                                             #
-#  このモジュールでは音声から正常に単語を識別できた際の反応を定義する。       #
-#   <option>                                                                  #
-#     word    : 認識された文字列を受け渡す                                    #
-#     wav     : 反応時に再生する音声ファイルを指定(wav形式)                   #
-#   <log>                                                                     #
-#     logs/response-YYYYMMDDHHMMSS.log                                        #
+#                          反応通知モジュール
+#
+#  このモジュールでは音声から正常に単語を識別できた際の反応を定義する。
+#   <option>
+#     word    : 認識された文字列を受け渡す
+#     wav     : 反応時に再生する音声ファイルを指定(wav形式)
+#   <log>
+#     logs/response-YYYYMMDDHHMMSS.log
 ###############################################################################
 def response(word, wav='sounds/response.wav'):
     path = 'logs/response-'+timestamp()+'.log'
     cmd = ['aplay', wav]
     print("[DEBUG]---- ["+word+"]と認識しました。認識音["+wav+"]を再生中です。")
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout_data, stderr_data = p.communicate()
+    oscmd(cmd)
 
     with open(path, mode='w') as f:
         f.write("[DEBUG]---- ["+word+"]と認識しました。認識音["+wav+"]を再生します。")
@@ -99,17 +98,17 @@ def response(word, wav='sounds/response.wav'):
     return
 
 ###############################################################################
-#                          Ping試験モジュール                                 #
-#                                                                             #
-#  このモジュールでは指定されたIPアドレスに対してPing試験を実施する。IPv4のみ #
-#  対応しており、試験回数、試験間隔をパラメーターで定義することができる。     #
-#   <option>                                                                  #
-#     target        : Pingを打つIPv4アドレスを指定                            #
-#     count         : Pingを打つ回数を指定                                    #
-#     interval      : Pingを打つ間隔を指定[秒](0.2以上を指定)                 #
-#     read - on/off : 結果の読み上げをするか否か                              #
-#   <log>                                                                     #
-#     logs/ping-YYYYMMDDHHMMSS.log                                            #
+#                          Ping試験モジュール
+#
+#  このモジュールでは指定されたIPアドレスに対してPing試験を実施する。IPv4のみ
+#  対応しており、試験回数、試験間隔をパラメーターで定義することができる。
+#   <option>
+#     target        : Pingを打つIPv4アドレスを指定
+#     count         : Pingを打つ回数を指定
+#     interval      : Pingを打つ間隔を指定[秒](0.2以上を指定)
+#     read - on/off : 結果の読み上げをするか否か
+#   <log>
+#     logs/ping-YYYYMMDDHHMMSS.log
 ###############################################################################
 def ping(target='8.8.8.8', count='5', interval='0.2', read='off'):
     cmd = ['ping', target, '-c', count, '-i', interval]
@@ -158,14 +157,14 @@ def ping(target='8.8.8.8', count='5', interval='0.2', read='off'):
     return
 
 ###############################################################################
-#                          時刻確認モジュール                                 #
-#                                                                             #
-#  このモジュールでは本スクリプトが実行されるサーバから時刻情報を取得し、     #
-#  現在の時刻を返答する。                                                     #
-#   <option>                                                                  #
-#     read - on/off : 音声の読み上げを指定                                    #
-#   <log>                                                                     #
-#     logs/date=YYYYMMDDHHMMSS.log                                            #
+#                          時刻確認モジュール
+#
+#  このモジュールでは本スクリプトが実行されるサーバから時刻情報を取得し、
+#  現在の時刻を返答する。
+#   <option>
+#     read - on/off : 音声の読み上げを指定
+#   <log>
+#     logs/date=YYYYMMDDHHMMSS.log
 ###############################################################################
 def date(read='off'):
     path = 'logs/date-'+timestamp()+'.log'
@@ -183,11 +182,11 @@ def date(read='off'):
     return
 
 ###############################################################################
-#                          再度再生モジュール                                 #
-#                                                                             #
-#  このモジュールでは直前に再生された音声メッセージを再度再生する。           #
-#   <option>                                                                  #
-#     read - on/off : 音声の読み上げを指定                                    #
+#                          再度再生モジュール
+#
+#  このモジュールでは直前に再生された音声メッセージを再度再生する。
+#   <option>
+#     read - on/off : 音声の読み上げを指定
 ###############################################################################
 def recall(read='on'):
     cmd = ['ls', 'logs']
@@ -208,11 +207,10 @@ def recall(read='on'):
     # 処理内容の再生
     joutput = "最後に再生されたメッセージをもう一度再生します。"
     joutput = joutput.encode('utf-8')
-    print("            前半メッセージを再生中")
+    print("[DEBUG]---- 前半メッセージを再生中")
     jtalk(joutput, log='off')
 
     # 最後に再生されたメッセージを再生
     aplay = ['aplay','-q','logs/jtalk-'+time+'.wav']
-    print("            後半メッセージ"+aplay[2]+"を再生中")
-    wr = subprocess.Popen(aplay, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout_data, stderr_data = wr.communicate()
+    print("[DEBUG]---- 後半メッセージ"+aplay[2]+"を再生中")
+    oscmd(aplay)
