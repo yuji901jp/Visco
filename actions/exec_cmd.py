@@ -166,7 +166,7 @@ def ping(target='8.8.8.8', count='5', interval='0.2', read='off'):
 #   <log>
 #     logs/date=YYYYMMDDHHMMSS.log
 ###############################################################################
-def date(read='off'):
+def date(read='on'):
     path = 'logs/date-'+timestamp()+'.log'
     d = datetime.now()
     output = '今日は%s月%s日、時間は%s時%s分です。' % (d.month, d.day, d.hour, d.minute)
@@ -205,12 +205,27 @@ def recall(read='on'):
                         time = key[0]
 
     # 処理内容の再生
-    joutput = "最後に再生されたメッセージをもう一度再生します。"
-    joutput = joutput.encode('utf-8')
-    print("[DEBUG]---- 前半メッセージを再生中")
-    jtalk(joutput, log='off')
+    if read is 'on':
+        joutput = "最後に再生されたメッセージをもう一度再生します。"
+        joutput = joutput.encode('utf-8')
+        print("[DEBUG]---- 前半メッセージを再生中")
+        jtalk(joutput, log='off')
 
     # 最後に再生されたメッセージを再生
     aplay = ['aplay','-q','logs/jtalk-'+time+'.wav']
     print("[DEBUG]---- 後半メッセージ"+aplay[2]+"を再生中")
     oscmd(aplay)
+
+def getaddress(read='on'):
+    # IPアドレスの取得
+    cmd = ['hostname','-I']
+    output = oscmd(cmd)
+    output = output[0].split(" ")
+    v4address = output[0]
+    v6address = output[1]
+
+    # 取得結果の再生
+    if read is 'on':
+        joutput = "私のIPアドレスは"+v4address+"です。"
+        print("[DEBUG]---- "+joutput)
+        jtalk(joutput.encode())

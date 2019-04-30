@@ -28,7 +28,7 @@ def extract_words(response):
                             " PHONE=", attrib['PHONE'])
 
             if attrib['WORD'] not in ('[s]', '[/s]'):
-                if float(attrib['CM']) > 0.5:
+                if float(attrib['CM']) > 0.3:
                     print("[HIT]------ WORD=", attrib['WORD'],\
                                        " CM=", attrib['CM'],\
                                   " CLASSID=", attrib['CLASSID'],\
@@ -58,6 +58,10 @@ def julius_speech_to_text(callback=None):
             exec_cmd.ping(target='8.8.8.8', read='on')
         elif '時間' in text or '何時' in text:
             exec_cmd.date(read='on')
+        elif 'もう一度' in text or 'もう一回' in text or 'リコール' in text:
+            exec_cmd.recall(read='on')
+        elif 'アドレス' in text:
+            exec_cmd.getaddress(read='on')
 
         if callback is not None:
             callback(text)
