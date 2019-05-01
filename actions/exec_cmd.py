@@ -9,14 +9,14 @@ from time import sleep
 #
 #  このモジュールではshellコマンドをホストOSレベルで実行する差異に使用される。
 ###############################################################################
-def oscmd(cmd):
-    p = Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+def oscmd(cmd, shell=True):
+    p = Popen(cmd, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout_data, stderr_data = p.communicate()
 
-    out = stdout_data.decode()
-    output = out.split('\n')
+    stdout = stdout_data.decode()
+    stderr = stderr_data.decode()
 
-    return output
+    return stdout, stderr
 
 ###############################################################################
 #                   タイムスタンプ生成モジュール
@@ -67,14 +67,14 @@ def jtalk(word, log='on'):
     p.wait()
 
     # wavファイルの再生
-    aplay = ['aplay','-q','logs/jtalk-'+stamp+'.wav']
-    oscmd(aplay)
+    cmd = ['aplay','-q','logs/jtalk-'+stamp+'.wav']
+    oscmd(cmd, shell=False)
 
     # ログの削除 
     if log == 'off':
-        print("[DEBUG]---- logオプションがoffなのでファイルを削除します", aplay[2])
-        cmd = ['rm', '-f', str(aplay[2])]
-        p = subprocess.Popen(cmd)
+        print("[DEBUG]---- logオプションがoffなのでファイルを削除します", cmd[2])
+        cmd = ['rm', '-f', str(cmd[2])]
+        oscmd(cmd, shell=False)
 
 ###############################################################################
 #                          反応通知モジュール
@@ -90,7 +90,10 @@ def response(word, wav='sounds/response.wav'):
     path = 'logs/response-'+timestamp()+'.log'
     cmd = ['aplay', wav]
     print("[DEBUG]---- ["+word+"]と認識しました。認識音["+wav+"]を再生中です。")
-    oscmd(cmd)
+    oscmd(cmd, shell=False)
+
+    stdout, stderr = oscmd(['pwd'], shell=True)
+    print(stdout, stderr)
 
     with open(path, mode='w') as f:
         f.write("[DEBUG]---- ["+word+"]と認識しました。認識音["+wav+"]を再生します。")
@@ -130,8 +133,12 @@ def ping(target='8.8.8.8', count='5', interval='0.2', read='off'):
 
     with open(path, mode='w') as f:
         f.write("[STARTED]-- Ping試験を実行します。("+cmd_ping+")")
-        for line in oscmd(cmd):
-            f.write(line+'\n')
+
+        output = oscmd(cmd, shell=False)
+        output = output[0].split('\n')
+
+        for line in output:
+            f.write(line)
             if "packet loss" in line:
                 val = line.split(' ')
                 loss = val[5].strip().replace('%','')
@@ -189,14 +196,16 @@ def date(read='on'):
 #     read - on/off : 音声の読み上げを指定
 ###############################################################################
 def recall(read='on'):
-    cmd = ['ls', 'logs']
+    cmd = ['ls', 'logs/']
     time = []
 
-    # ファイル名からタイムスタンプ部を抽出
-    for line in oscmd(cmd):
+    output = oscmd(cmd, shell=False)
+    output = output[0].split('\n')
+
+    for line in output:
         if len(line) != 0:
             line = line.split('-')
-            key = line[1].split('.')
+            key  = line[1].split('.')
             if key[1] == 'wav':
                 if len(time) == 0:
                     time = key[0]
@@ -212,14 +221,14 @@ def recall(read='on'):
         jtalk(joutput, log='off')
 
     # 最後に再生されたメッセージを再生
-    aplay = ['aplay','-q','logs/jtalk-'+time+'.wav']
-    print("[DEBUG]---- 後半メッセージ"+aplay[2]+"を再生中")
-    oscmd(aplay)
+    cmd = ['aplay','-q','logs/jtalk-'+time+'.wav']
+    print("[DEBUG]---- 後半メッセージ"+cmd[2]+"を再生中")
+    oscmd(cmd, shell=False)
 
 def getaddress(read='on'):
     # IPアドレスの取得
     cmd = ['hostname','-I']
-    output = oscmd(cmd)
+    output = oscmd(cmd, shell=False)
     output = output[0].split(" ")
     v4address = output[0]
     v6address = output[1]

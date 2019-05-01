@@ -1,0 +1,24 @@
+{
+	"OsEnv" :{
+		"AlsaDev": "plughw:0,0"
+	},
+	"Julius" :{
+		"HMM": "-h /home/pi/julius/grammar-kit/model/phone_m/hmmdefs_ptm_gid.binhmm",
+		"HMMlist" : "-hlist /home/pi/julius/grammar-kit/model/phone_m/logicalTri",
+		"Grammar": "-gram /home/pi/Visco/dict/test",
+		"Input": "-input mic",
+		"Strip": "-nostrip",
+		"Reject": "-rejectshort 600",
+		"Level": "-lv 500",
+		"Mode": "-module 10500"
+	},
+	"Sounds" :{
+		"ResponseSoundFile": "/home/pi/Visco/sounds/response.wav"
+	},
+	"Actions" :{
+		"PingTarget": "8.8.8.8",
+		"PingCout": "5",
+		"PingInterval": "0.2"
+	}
+
+}

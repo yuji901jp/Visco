@@ -4,8 +4,36 @@ import socket
 import re
 import xml.etree.ElementTree as ET
 from actions import exec_cmd
+import json
+import os
 
-def extract_words(response):
+def readjson(jfile):
+
+    f = open(jfile, 'r')
+    jsondata = json.load(f)
+
+    return jsondata
+
+def setenv(jsondata):
+    # 各グループ毎にパラメーターの変数格納
+    groupdict = jsondata["OsEnv"]
+    alsadev   = groupdict["AlsaDev"]
+
+    # 事前設定
+    print('変更前の設定 -->', end='')
+    print(os.getenv('ALSADEV'))
+    os.environ['ALSADEV'] = alsadev
+    print('変更後の設定 -->', end='')
+    print(os.getenv('ALSADEV'))
+
+    # 設定結果の確認
+    if os.getenv('ALSADEV') != alsadev:
+        print('[FAILED]--- ${ALSADEV}を'+alsadev+'に変更することができませんでした。')
+        sys.exit()
+    elif os.getenv('ALSADEV') == alsadev:
+        print('[SUCCESS]-- ${ALSADEV}を'+alsadev+'に変更しました。')
+
+def voice2words(response):
         # 正規表現で切り出し
         xml_recogout = re.search(
             r'<RECOGOUT>.+</RECOGOUT>',
@@ -20,6 +48,7 @@ def extract_words(response):
         # XMLパース
         recogout = ET.fromstring(xml_recogout.group(0))
         words = []
+
         for whypo in recogout[0]:
             attrib = whypo.attrib
             print("[RAW]------ WORD=", attrib['WORD'],\
@@ -37,21 +66,27 @@ def extract_words(response):
 
         return ''.join(words)
 
-def julius_speech_to_text(callback=None):
+def speech2text(responsesoundfile, callback=None):
     host = '127.0.0.1'
     port = 10500
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect((host, port))
+
     while True:
         time.sleep(0.1)
         response = client.recv(4096).decode('utf-8')
 
-        text = extract_words(response)
+        text = voice2words(response)
         if text is None:
             continue
 
         if len(text) is not 0:
-            exec_cmd.response(word=text, wav='sounds/response.wav')
+            #exec_cmd.response(word=text, wav='/home/pi/Visco/sounds/response.wav')
+            aplay = ['aplay']
+            wav   = [responsesoundfile]
+            cmd = aplay+wav
+            print(cmd)
+            exec_cmd.oscmd(cmd, shell=False)
             print("[KEYWORD]-- Picked up keyword is : ", text)
 
         if 'Ping' in text:
@@ -67,8 +102,27 @@ def julius_speech_to_text(callback=None):
             callback(text)
 
 if __name__ == '__main__':
+
+    # JSONファイルの読み込み
+    jfile = 'setting.json'
+    jsondata = readjson(jfile)
+
+    # 事前設定
+    setenv(jsondata)
+
+    groupdict = jsondata["Sounds"]
+    responsesoundfile = groupdict["ResponseSoundFile"]
+    print("Sounds :")
+    print("     responsesoundfile :", responsesoundfile)
+
+    aplay = ['aplay']
+    wav   = [responsesoundfile]
+    cmd = aplay+wav
+    print(cmd)
+    exec_cmd.oscmd(cmd, shell=False)
+
     try:
-        julius_speech_to_text()
+        speech2text(responsesoundfile)
 
     except KeyboardInterrupt:
         print('keyboard interrupt')
