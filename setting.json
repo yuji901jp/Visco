@@ -10,14 +10,22 @@
 		"Strip": "-nostrip",
 		"Reject": "-rejectshort 600",
 		"Level": "-lv 500",
-		"Mode": "-module 10500"
+		"Mode": "-module 10500",
+		"Threshold": "0.3",
+		"ServerIp": "127.0.0.1",
+		"ServerPort": 10500
+	},
+	"OpenJtalk" :{
+		"Mech": "-x /var/lib/mecab/dic/open-jtalk/naist-jdic",
+		"HtsVoice": "-m /usr/share/hts-voice/mei/mei_normal.htsvoice",
+		"Speed": "-r 1.0"
 	},
 	"Sounds" :{
 		"ResponseSoundFile": "/home/pi/Visco/sounds/response.wav"
 	},
 	"Actions" :{
-		"PingTarget": "8.8.8.8",
-		"PingCout": "5",
+		"PingTarget": "192.168.1.1",
+		"PingCount": "5",
 		"PingInterval": "0.2"
 	}
 

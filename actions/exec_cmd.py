@@ -92,9 +92,6 @@ def response(word, wav='sounds/response.wav'):
     print("[DEBUG]---- ["+word+"]と認識しました。認識音["+wav+"]を再生中です。")
     oscmd(cmd, shell=False)
 
-    stdout, stderr = oscmd(['pwd'], shell=True)
-    print(stdout, stderr)
-
     with open(path, mode='w') as f:
         f.write("[DEBUG]---- ["+word+"]と認識しました。認識音["+wav+"]を再生します。")
 

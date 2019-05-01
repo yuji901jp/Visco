@@ -20,11 +20,11 @@ def setenv(jsondata):
     alsadev   = groupdict["AlsaDev"]
 
     # 事前設定
-    print('変更前の設定 -->', end='')
-    print(os.getenv('ALSADEV'))
+    #print('変更前の設定 -->', end='')
+    #print(os.getenv('ALSADEV'))
     os.environ['ALSADEV'] = alsadev
-    print('変更後の設定 -->', end='')
-    print(os.getenv('ALSADEV'))
+    #print('変更後の設定 -->', end='')
+    #print(os.getenv('ALSADEV'))
 
     # 設定結果の確認
     if os.getenv('ALSADEV') != alsadev:
@@ -33,7 +33,7 @@ def setenv(jsondata):
     elif os.getenv('ALSADEV') == alsadev:
         print('[SUCCESS]-- ${ALSADEV}を'+alsadev+'に変更しました。')
 
-def voice2words(response):
+def voice2words(response, threshold):
         # 正規表現で切り出し
         xml_recogout = re.search(
             r'<RECOGOUT>.+</RECOGOUT>',
@@ -57,40 +57,56 @@ def voice2words(response):
                             " PHONE=", attrib['PHONE'])
 
             if attrib['WORD'] not in ('[s]', '[/s]'):
-                if float(attrib['CM']) > 0.3:
-                    print("[HIT]------ WORD=", attrib['WORD'],\
-                                       " CM=", attrib['CM'],\
-                                  " CLASSID=", attrib['CLASSID'],\
-                                    " PHONE=", attrib['PHONE'])
+                if float(attrib['CM']) > threshold:
+                    print("[HIT]------")
                     words.append(attrib['WORD'])
 
         return ''.join(words)
 
-def speech2text(responsesoundfile, callback=None):
-    host = '127.0.0.1'
-    port = 10500
+def speech2text(jsondata, callback=None):
+    # 効果音のファイル取得
+    groupdict = jsondata["Sounds"]
+    responsesoundfile = groupdict["ResponseSoundFile"]
+    print("Sounds :")
+    print("     responsesoundfile :", responsesoundfile)
+
+    # juliusサーバの設定情報取得
+    groupdict = jsondata["Julius"]
+    serverip   = groupdict["ServerIp"]
+    serverport = groupdict["ServerPort"]
+    threshold  = groupdict["Threshold"]
+    print("Julius :")
+    print("     serverip   :", serverip)
+    print("     serverport :", serverport)
+    print("     threshold  :", threshold)
+
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect((host, port))
+    client.connect((serverip, int(serverport)))
+
+    # Action用のパラメータを読み込み
+    groupdict = jsondata["Actions"]
+    pingtarget   = groupdict["PingTarget"]
+    pingcount    = groupdict["PingCount"]
+    pinginterval = groupdict["PingInterval"]
+    print("Actions :")
+    print("     PingTarget   :", pingtarget)
+    print("     PingCount    :", pingcount)
+    print("     PingInterval :", pinginterval)
 
     while True:
         time.sleep(0.1)
         response = client.recv(4096).decode('utf-8')
 
-        text = voice2words(response)
+        text = voice2words(response, float(threshold))
         if text is None:
             continue
 
         if len(text) is not 0:
-            #exec_cmd.response(word=text, wav='/home/pi/Visco/sounds/response.wav')
-            aplay = ['aplay']
-            wav   = [responsesoundfile]
-            cmd = aplay+wav
-            print(cmd)
-            exec_cmd.oscmd(cmd, shell=False)
+            exec_cmd.response(word=text, wav=responsesoundfile)
             print("[KEYWORD]-- Picked up keyword is : ", text)
 
         if 'Ping' in text:
-            exec_cmd.ping(target='8.8.8.8', read='on')
+            exec_cmd.ping(target=pingtarget, count=pingcount, interval=pinginterval, read='on')
         elif '時間' in text or '何時' in text:
             exec_cmd.date(read='on')
         elif 'もう一度' in text or 'もう一回' in text or 'リコール' in text:
@@ -110,19 +126,8 @@ if __name__ == '__main__':
     # 事前設定
     setenv(jsondata)
 
-    groupdict = jsondata["Sounds"]
-    responsesoundfile = groupdict["ResponseSoundFile"]
-    print("Sounds :")
-    print("     responsesoundfile :", responsesoundfile)
-
-    aplay = ['aplay']
-    wav   = [responsesoundfile]
-    cmd = aplay+wav
-    print(cmd)
-    exec_cmd.oscmd(cmd, shell=False)
-
     try:
-        speech2text(responsesoundfile)
+        speech2text(jsondata)
 
     except KeyboardInterrupt:
         print('keyboard interrupt')
