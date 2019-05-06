@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from subprocess import Popen, PIPE
+import subprocess
 from actions import exec_cmd
 import json
 import os
@@ -17,10 +19,10 @@ def setenv(jsondata):
     alsadev   = groupdict["AlsaDev"]
 
     # 事前設定
-    print('変更前の設定 -->', end='')
+    print('[DEBUG]---- : 変更前の設定 -->', end='')
     print(os.getenv('ALSADEV'))
     os.environ['ALSADEV'] = alsadev
-    print('変更後の設定 -->', end='')
+    print('[DEBUG]---- : 変更後の設定 -->', end='')
     print(os.getenv('ALSADEV'))
 
     # 設定結果の確認
@@ -40,42 +42,25 @@ def startjulius(jsondata):
     reject  = groupdict["Reject"]
     level   = groupdict["Level"]
     mode    = groupdict["Mode"]
-    print("Julius will be started with following parameters...")
-    print("     HMM     : ", hmm)
-    print("     HMMlist : ", hmmlist)
-    print("     Grammar : ", grammar)
-    print("     Strip   : ", strip)
-    print("     Input   : ", infile)
-    print("     Reject  : ", reject)
-    print("     Level   : ", level)
-    print("     Mode    : ", mode)
-    
-    julius  = ['julius']
-    hmm     = str(hmm).split(' ')
-    hmmlist = str(hmmlist).split(' ')
-    grammar = str(grammar).split(' ')
-    strip   = str(strip).split(' ')
-    infile  = str(infile).split(' ')
-    reject  = str(reject).split(' ')
-    level   = str(level).split(' ')
-    mode    = str(mode).split(' ')
-    back    = ['&']
+    print("[DEBUG]---- : Julius will be started with following parameters...")
+    print("[DEBUG]---- :     HMM     : ", hmm)
+    print("[DEBUG]---- :     HMMlist : ", hmmlist)
+    print("[DEBUG]---- :     Grammar : ", grammar)
+    print("[DEBUG]---- :     Strip   : ", strip)
+    print("[DEBUG]---- :     Input   : ", infile)
+    print("[DEBUG]---- :     Reject  : ", reject)
+    print("[DEBUG]---- :     Level   : ", level)
+    print("[DEBUG]---- :     Mode    : ", mode)
+    stamp = exec_cmd.timestamp()
+    back = '> logs/julius-'+stamp+'.log 2>&1'
 
-    with open('julius-run.sh', 'w') as f:
-        f.write(' '.join(julius)+' ')
-        f.write(' '.join(hmm)+' ')
-        f.write(' '.join(hmmlist)+' ')
-        f.write(' '.join(grammar)+' ')
-        f.write(' '.join(infile)+' ')
-        f.write(' '.join(strip)+' ')
-        f.write(' '.join(reject)+' ')
-        f.write(' '.join(level)+' ')
-        f.write(' '.join(mode)+' ')
-        f.write(' '.join(back)+' > /dev/null')
+    cmd = 'julius'+' '+hmm+' '+hmmlist+' '+grammar+' '\
+            +strip+' '+infile+' '+reject+' '+level+' '+mode+' '+back
+    print(cmd)
 
-    stdout, stderr = exec_cmd.oscmd(['sh','julius-run.sh'])
+    p = Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    return stdout, stderr
+    return p
 
 if __name__ == '__main__':
 
@@ -87,4 +72,7 @@ if __name__ == '__main__':
     setenv(jsondata)
 
     # Juliusの起動
-    stdout, stderr = startjulius(jsondata)
+    p = startjulius(jsondata)
+    print('[DEBUG]---- :p ;', p)
+    #print('[DEBUG]---- : stdout :', stdout)
+    #print('[DEBUG]---- : stderr :', stderr)
