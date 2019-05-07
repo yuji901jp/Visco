@@ -72,7 +72,7 @@ def jtalk(word, log='on'):
 
     # ログの削除 
     if log == 'off':
-        print("[DEBUG]---- logオプションがoffなのでファイルを削除します", cmd[2])
+        print("[DEBUG]---- : logオプションがoffなのでファイルを削除します", cmd[2])
         cmd = ['rm', '-f', str(cmd[2])]
         oscmd(cmd, shell=False)
 
@@ -89,11 +89,11 @@ def jtalk(word, log='on'):
 def response(word, wav='sounds/response.wav'):
     path = 'logs/response-'+timestamp()+'.log'
     cmd = ['aplay', wav]
-    print("[DEBUG]---- ["+word+"]と認識しました。認識音["+wav+"]を再生中です。")
+    print("[DEBUG]---- : ["+word+"]と認識しました。認識音["+wav+"]を再生中です。")
     oscmd(cmd, shell=False)
 
     with open(path, mode='w') as f:
-        f.write("[DEBUG]---- ["+word+"]と認識しました。認識音["+wav+"]を再生します。")
+        f.write("[DEBUG]---- : ["+word+"]と認識しました。認識音["+wav+"]を再生します。")
 
     return
 
@@ -126,10 +126,10 @@ def ping(target='8.8.8.8', count='5', interval='0.2', read='off'):
                str(cmd[3])+" "+\
                str(cmd[4])+" "+\
                str(cmd[5])
-    print("[STARTED]-- Ping試験を実行します。("+cmd_ping+")")
+    print("[STARTED]-- : Ping試験を実行します。("+cmd_ping+")")
 
     with open(path, mode='w') as f:
-        f.write("[STARTED]-- Ping試験を実行します。("+cmd_ping+")")
+        f.write("[STARTED]-- : Ping試験を実行します。("+cmd_ping+")")
 
         output = oscmd(cmd, shell=False)
         output = output[0].split('\n')
@@ -141,8 +141,8 @@ def ping(target='8.8.8.8', count='5', interval='0.2', read='off'):
                 loss = val[5].strip().replace('%','')
                 if loss == '0':
                     output = target+"までロスなくPingが実行されました。"
-                    print("[SUCCESS]-- "+output)
-                    f.write("[SUCCESS]-- "+output)
+                    print("[SUCCESS]-- : "+output)
+                    f.write("[SUCCESS]-- : "+output)
 
                     if read is 'on':
                         output = target+"までロスなくピングが実行されました。"
@@ -150,8 +150,8 @@ def ping(target='8.8.8.8', count='5', interval='0.2', read='off'):
                         jtalk(output)
                 else:
                     output = target+"まで"+loss+"%のPingロスがありました。"
-                    print("[FAILED]--- "+output)
-                    f.write("[FAILED]--- "+output)
+                    print("[FAILED]--- : "+output)
+                    f.write("[FAILED]--- : "+output)
 
                     if read is 'on':
                         joutput = target+"まで"+loss+"%のピングロスがありました。"
@@ -174,10 +174,10 @@ def date(read='on'):
     path = 'logs/date-'+timestamp()+'.log'
     d = datetime.now()
     output = '今日は%s月%s日、時間は%s時%s分です。' % (d.month, d.day, d.hour, d.minute)
-    print("[SUCCESS]-- "+output)
+    print("[SUCCESS]-- : "+output)
 
     with open(path, mode='w') as f:
-        f.write("[SUCCESS]-- "+output)
+        f.write("[SUCCESS]-- : "+output)
 
     if read is 'on':
         output = output.encode('utf-8')
@@ -214,12 +214,12 @@ def recall(read='on'):
     if read is 'on':
         joutput = "最後に再生されたメッセージをもう一度再生します。"
         joutput = joutput.encode('utf-8')
-        print("[DEBUG]---- 前半メッセージを再生中")
+        print("[DEBUG]---- : 前半メッセージを再生中")
         jtalk(joutput, log='off')
 
     # 最後に再生されたメッセージを再生
     cmd = ['aplay','-q','logs/jtalk-'+time+'.wav']
-    print("[DEBUG]---- 後半メッセージ"+cmd[2]+"を再生中")
+    print("[DEBUG]---- : 後半メッセージ"+cmd[2]+"を再生中")
     oscmd(cmd, shell=False)
 
 def getaddress(read='on'):
@@ -233,5 +233,5 @@ def getaddress(read='on'):
     # 取得結果の再生
     if read is 'on':
         joutput = "私のIPアドレスは"+v4address+"です。"
-        print("[DEBUG]---- "+joutput)
+        print("[DEBUG]---- : "+joutput)
         jtalk(joutput.encode())
